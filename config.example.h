@@ -1,0 +1,11 @@
+#ifndef CONFIG_H
+#define CONFIG_H
+
+#define BLYNK_TEMPLATE_ID "YOUR_TEMPLATE_ID"
+#define BLYNK_TEMPLATE_NAME "Babyphone Intelligent"
+#define BLYNK_AUTH_TOKEN "YOUR_DEVICE_AUTH_TOKEN"
+
+#define WIFI_NETWORK_NAME "Wokwi-GUEST"
+#define WIFI_NETWORK_PASSWORD ""
+
+#endif

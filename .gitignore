@@ -1,0 +1,14 @@
+# Local credentials
+config.h
+
+# Build outputs
+build/
+*.bin
+*.elf
+*.map
+*.hex
+
+# OS / editor files
+.DS_Store
+Thumbs.db
+.vscode/
