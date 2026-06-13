@@ -107,6 +107,7 @@ void updateBlynk(unsigned long now);
 void sendBlynkData();
 void sendBlynkNotification();
 bool isBlynkConfigured();
+String blynkStateText();
 void printDebug();
 
 void resetBuzzerPattern();
@@ -500,6 +501,18 @@ bool isBlynkConfigured() {
   return strcmp(BLYNK_AUTH_TOKEN, "YOUR_BLYNK_AUTH_TOKEN") != 0;
 }
 
+String blynkStateText() {
+  if (currentState == THERMAL_ALERT) {
+    if (temperature < TEMP_MIN) {
+      return "Alerte thermique - Chambre trop froide";
+    }
+
+    return "Alerte thermique - Chambre trop chaude";
+  }
+
+  return stateToText(currentState);
+}
+
 void setupBlynk() {
   if (!isBlynkConfigured()) {
     Serial.println("Blynk non configure : remplacer YOUR_BLYNK_AUTH_TOKEN.");
@@ -555,7 +568,7 @@ void sendBlynkData() {
   Blynk.virtualWrite(V0, temperature);
   Blynk.virtualWrite(V1, humidity);
   Blynk.virtualWrite(V2, noisePercent);
-  Blynk.virtualWrite(V4, stateToText(currentState));
+  Blynk.virtualWrite(V4, blynkStateText());
 }
 
 void sendBlynkNotification() {
@@ -610,7 +623,18 @@ void printDebug() {
   Serial.print(" | Bruit=");
   Serial.print(noisePercent);
   Serial.print("% | Etat=");
-  Serial.println(stateToText(currentState));
+  Serial.print(stateToText(currentState));
+
+  if (currentState == THERMAL_ALERT) {
+    Serial.print(" | Detail=");
+    if (temperature < TEMP_MIN) {
+      Serial.print("Chambre trop froide");
+    } else {
+      Serial.print("Chambre trop chaude");
+    }
+  }
+
+  Serial.println();
 }
 
 // =============================================================
