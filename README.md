@@ -20,6 +20,8 @@ The system monitors:
 - Blynk gauges for temperature, humidity, and noise
 - Blynk notifications for baby awake/agitated and thermal alerts
 - Blynk switch on `V3` to enable/disable the local buzzer
+- Two-hour summary with minimum/maximum temperature and wake-up count
+- MPU6050 fall detection with highest-priority local and Blynk alert
 
 ## Required Software
 
@@ -66,6 +68,9 @@ Create these datastreams:
 | Noise level | `V2` | Integer | 0 | 100 |
 | Buzzer enabled | `V3` | Integer | 0 | 1 |
 | Baby state | `V4` | String | - | - |
+| Last 2h minimum temperature | `V5` | Double | 0 | 50 |
+| Last 2h maximum temperature | `V6` | Double | 0 | 50 |
+| Last 2h wake-up count | `V7` | Integer | 0 | 1000 |
 
 Create these Blynk events:
 
@@ -75,6 +80,7 @@ Create these Blynk events:
 | `bebe_agite` | Bebe agite |
 | `temperature_basse` | Temperature chambre trop basse |
 | `temperature_haute` | Temperature chambre trop haute |
+| `chute_detectee` | Chute detectee - intervention immediate |
 
 In the Blynk dashboard, add:
 
@@ -84,6 +90,32 @@ In the Blynk dashboard, add:
 - Chart linked to `V0` for temperature history
 - Switch linked to `V3`
 - Label linked to `V4`
+- Value displays linked to `V5`, `V6`, and `V7` for the last completed two-hour summary
+
+## Test The Two-Hour Summary
+
+The final interval is configured as two hours:
+
+```cpp
+const unsigned long SUMMARY_INTERVAL_MS = 2UL * 60UL * 60UL * 1000UL;
+```
+
+For a quick Wokwi test, temporarily replace it with `30000` (30 seconds), then restore the two-hour value for the final version.
+
+## MPU6050 Fall Detection
+
+The MPU6050 shares the I2C bus with the OLED:
+
+| MPU6050 | ESP32 |
+|---|---|
+| VCC | 3V3 |
+| GND | GND |
+| SDA | GPIO21 |
+| SCL | GPIO22 |
+
+The code checks acceleration every 100 ms. A free-fall magnitude below `3 m/s2` or an impact above `20 m/s2` triggers `FALL_ALERT` for at least five seconds.
+
+Fall alert priority is higher than thermal alert, agitation, and awake states. It activates the red LED, continuous buzzer, OLED warning, Serial detail, and the Blynk event `chute_detectee`.
 
 ## Local Configuration
 
